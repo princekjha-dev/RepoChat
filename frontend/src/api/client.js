@@ -19,11 +19,14 @@ async function fetchJson(endpoint, options = {}) {
   };
   const response = await fetch(url, { ...options, headers });
   const text = await response.text();
-  let data;
+  let data = {};
   try {
     data = text ? JSON.parse(text) : {};
   } catch {
-    throw new Error(`Invalid JSON: ${text.slice(0, 100)}`);
+    if (!response.ok) {
+      throw new Error(`Server returned status ${response.status}: ${response.statusText || 'Not Found'}`);
+    }
+    throw new Error(`Invalid JSON response received from ${endpoint}`);
   }
   if (!response.ok) {
     throw new Error(data.error || `Request failed: ${response.status}`);
