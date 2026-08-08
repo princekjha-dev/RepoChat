@@ -1,7 +1,7 @@
 """
 AI Code Review Engine for RepoChat.
 Provides automated code review: bug detection, security analysis, quality scoring,
-and structured review output via OpenRouter / Groq / Anthropic.
+and structured review output via OpenRouter API.
 """
 
 import os
@@ -12,15 +12,9 @@ from typing import Dict, List, Any, Optional, Generator
 from utils import chat_logger
 
 # ── API Configuration ──────────────────────────────────
-GROQ_API_KEY       = os.getenv("GROQ_API_KEY", "")
-ANTHROPIC_API_KEY  = os.getenv("ANTHROPIC_API_KEY", "")
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
-
-GROQ_API_URL       = "https://api.groq.com/openai/v1/chat/completions"
 OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions"
-
-GROQ_MODEL        = "llama-3.3-70b-versatile"
-OPENROUTER_MODEL  = "meta-llama/llama-3.3-70b-instruct"
+OPENROUTER_MODEL   = os.getenv("LLM_MODEL", "meta-llama/llama-3.3-70b-instruct:free")
 
 # ── Review System Prompts ──────────────────────────────
 
@@ -88,47 +82,32 @@ def _call_llm_json(
     user_content: str,
     max_tokens: int = 3000,
 ) -> Dict[str, Any]:
-    """Calls available LLM provider and returns parsed JSON response, with fallback handling."""
-    
+    """Calls OpenRouter API and returns parsed JSON response, with local fallback handling."""
+    openrouter_key = os.getenv("OPENROUTER_API_KEY", "").strip()
+    openrouter_model = os.getenv("LLM_MODEL", "meta-llama/llama-3.3-70b-instruct:free").strip()
+
     messages = [
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": user_content}
     ]
-    
-    api_url, api_key, model, extra_headers = None, None, None, {}
 
-    if _is_real_key(GROQ_API_KEY):
-        api_url = GROQ_API_URL
-        api_key = GROQ_API_KEY
-        model = GROQ_MODEL
-    elif _is_real_key(OPENROUTER_API_KEY):
-        api_url = OPENROUTER_API_URL
-        api_key = OPENROUTER_API_KEY
-        model = OPENROUTER_MODEL
-        extra_headers = {
-            "HTTP-Referer": "https://github.com/RepoChat",
-            "X-Title": "RepoChat"
-        }
-
-    if api_url and api_key:
+    if _is_real_key(openrouter_key):
         headers = {
-            "Authorization": f"Bearer {api_key}",
+            "Authorization": f"Bearer {openrouter_key}",
             "Content-Type": "application/json",
-            **extra_headers
+            "HTTP-Referer": "https://github.com/princekjha-dev/RepoChat",
+            "X-Title": "RepoChat AI",
         }
         
         payload = {
-            "model": model,
+            "model": openrouter_model,
             "messages": messages,
             "max_tokens": max_tokens,
             "temperature": 0.1,
-            "response_format": {"type": "json_object"} if "groq" in api_url else None
         }
         
-        payload = {k: v for k, v in payload.items() if v is not None}
-        
         try:
-            response = requests.post(api_url, headers=headers, json=payload, timeout=90)
+            response = requests.post(OPENROUTER_API_URL, headers=headers, json=payload, timeout=90)
             response.raise_for_status()
             
             data = response.json()
@@ -154,12 +133,12 @@ def _call_llm_json(
             {
                 "severity": "info",
                 "category": "maintainability",
-                "title": "Configured LLM Provider Check",
-                "description": "Configure OPENROUTER_API_KEY or GROQ_API_KEY in .env for live cloud model reasoning.",
+                "title": "OpenRouter API Key Setup",
+                "description": "Configure OPENROUTER_API_KEY in .env for live cloud model reasoning.",
                 "file": "backend/.env",
                 "line_start": 1,
                 "line_end": 10,
-                "suggestion": "Set OPENROUTER_API_KEY=your_key in backend/.env"
+                "suggestion": "Set OPENROUTER_API_KEY=your_key in .env"
             }
         ],
         "positives": [
@@ -177,37 +156,24 @@ def _call_llm_stream(
     user_content: str,
     max_tokens: int = 2000,
 ) -> Generator[str, None, None]:
-    """Calls LLM and streams response tokens, with fallback handling."""
-    
+    """Calls OpenRouter API and streams response tokens, with local fallback handling."""
+    openrouter_key = os.getenv("OPENROUTER_API_KEY", "").strip()
+    openrouter_model = os.getenv("LLM_MODEL", "meta-llama/llama-3.3-70b-instruct:free").strip()
+
     messages = [
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": user_content}
     ]
-    
-    api_url, api_key, model, extra_headers = None, None, None, {}
 
-    if _is_real_key(GROQ_API_KEY):
-        api_url = GROQ_API_URL
-        api_key = GROQ_API_KEY
-        model = GROQ_MODEL
-    elif _is_real_key(OPENROUTER_API_KEY):
-        api_url = OPENROUTER_API_URL
-        api_key = OPENROUTER_API_KEY
-        model = OPENROUTER_MODEL
-        extra_headers = {
-            "HTTP-Referer": "https://github.com/RepoChat",
-            "X-Title": "RepoChat"
-        }
-
-    if api_url and api_key:
+    if _is_real_key(openrouter_key):
         headers = {
-            "Authorization": f"Bearer {api_key}",
+            "Authorization": f"Bearer {openrouter_key}",
             "Content-Type": "application/json",
-            **extra_headers
+            "HTTP-Referer": "https://github.com/princekjha-dev/RepoChat",
+            "X-Title": "RepoChat AI",
         }
-        
         payload = {
-            "model": model,
+            "model": openrouter_model,
             "messages": messages,
             "max_tokens": max_tokens,
             "temperature": 0.2,
@@ -215,7 +181,7 @@ def _call_llm_stream(
         }
         
         try:
-            response = requests.post(api_url, headers=headers, json=payload, stream=True, timeout=90)
+            response = requests.post(OPENROUTER_API_URL, headers=headers, json=payload, stream=True, timeout=90)
             response.raise_for_status()
             for line in response.iter_lines():
                 if line:

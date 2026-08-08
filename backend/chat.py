@@ -2,7 +2,7 @@
 Chat module for RepoChat.
 Handles semantic chunk retrieval, prompt/context preparation,
 conversation history tracking, and streaming LLM integration.
-Priority: Groq > Anthropic > OpenRouter
+Powered exclusively by OpenRouter API with local RAG fallback.
 
 Citation support:
   - LLM is required to cite as [file_path:start_line-end_line]
@@ -21,16 +21,9 @@ from utils import chat_logger, count_tokens
 from indexer import get_chroma_client, get_embedding_model, sanitize_collection_name
 
 # ── API Configuration ──────────────────────────────────
-GROQ_API_KEY       = os.getenv("GROQ_API_KEY", "")
-ANTHROPIC_API_KEY  = os.getenv("ANTHROPIC_API_KEY", "")
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
-
-GROQ_API_URL        = "https://api.groq.com/openai/v1/chat/completions"
-OPENROUTER_API_URL  = "https://openrouter.ai/api/v1/chat/completions"
-
-# Models
-GROQ_MODEL           = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
-OPENROUTER_MODEL     = os.getenv("LLM_MODEL", "meta-llama/llama-3.3-70b-instruct:free")
+OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions"
+OPENROUTER_MODEL   = os.getenv("LLM_MODEL", "meta-llama/llama-3.3-70b-instruct:free")
 
 def _is_real_key(key: str) -> bool:
     """Return True only if the key looks like a valid, non-placeholder secret."""
@@ -397,34 +390,12 @@ def stream_chat_response(
         messages = format_history(conversation_history)
         messages.append({"role": "user", "content": user_prompt})
 
-        # 5. Dynamic API Key Retrieval & Provider Selection
-        groq_key = os.getenv("GROQ_API_KEY", "").strip()
-        anthropic_key = os.getenv("ANTHROPIC_API_KEY", "").strip()
+        # 5. OpenRouter API Key Retrieval & Streaming Setup
         openrouter_key = os.getenv("OPENROUTER_API_KEY", "").strip()
         openrouter_model = os.getenv("LLM_MODEL", "meta-llama/llama-3.3-70b-instruct:free").strip()
 
         stream_gen = None
-        if _is_real_key(groq_key):
-            chat_logger.info(f"Using Groq ({GROQ_MODEL}) for query in {repo_name}")
-            try:
-                stream_gen = _stream_openai_compat(
-                    api_url=GROQ_API_URL,
-                    api_key=groq_key,
-                    model=GROQ_MODEL,
-                    system_prompt=SYSTEM_PROMPT,
-                    messages=messages,
-                )
-            except Exception as ge:
-                chat_logger.warning(f"Groq stream init failed: {ge}")
-
-        if not stream_gen and _is_real_key(anthropic_key):
-            chat_logger.info("Using Anthropic Claude for query")
-            try:
-                stream_gen = _stream_anthropic(SYSTEM_PROMPT, messages)
-            except Exception as ae:
-                chat_logger.warning(f"Anthropic stream init failed: {ae}")
-
-        if not stream_gen and _is_real_key(openrouter_key):
+        if _is_real_key(openrouter_key):
             try:
                 chat_logger.info(f"Attempting OpenRouter ({openrouter_model}) for query in {repo_name}")
                 stream_gen = _stream_openai_compat(
@@ -441,7 +412,7 @@ def stream_chat_response(
             except Exception as oe:
                 chat_logger.warning(f"OpenRouter stream init failed: {oe}")
 
-        # Final Fallback to local RAG synthesis
+        # Fallback to Local RAG Synthesizer if OpenRouter API key is unconfigured or fails
         if not stream_gen:
             chat_logger.info(f"Using Local RAG Synthesizer for query in {repo_name}")
             stream_gen = _stream_local_rag_fallback(query, repo_name, chunks)
