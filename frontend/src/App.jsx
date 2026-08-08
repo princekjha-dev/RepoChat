@@ -96,8 +96,8 @@ export default function App() {
         }
       } catch (err) {
         stopPolling();
-        addToast('Status check failed.', 'error');
-        setTimeout(() => { clearActiveTask(); setActivePage('landing'); }, 4000);
+        clearActiveTask();
+        setActivePage('landing');
       }
     }, 1000);
   };

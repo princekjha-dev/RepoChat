@@ -28,18 +28,18 @@ async function fetchJson(endpoint, options = {}) {
     try {
       data = text ? JSON.parse(text) : {};
     } catch {
-      if (!response.ok) {
-        throw new Error(`Backend service unreachable (${response.status}). Set VITE_API_URL in Vercel environment variables.`);
-      }
-      throw new Error(`Invalid JSON response received from ${endpoint}`);
+      data = {};
     }
     if (!response.ok) {
-      throw new Error(data.error || `Request failed: ${response.status}`);
+      const msg = data.error || `Backend endpoint unreachable (${response.status}).`;
+      const error = new Error(msg);
+      error.status = response.status;
+      throw error;
     }
     return data;
   } catch (err) {
-    if (err.message && (err.message.includes('NOT_FOUND') || err.message.includes('404'))) {
-      throw new Error(`Backend API endpoint '${endpoint}' was not found. Please configure VITE_API_URL in Vercel.`);
+    if (!err.status) {
+      err.status = 500;
     }
     throw err;
   }
