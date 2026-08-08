@@ -8,8 +8,12 @@
 // which avoids CORS issues entirely.
 // In production (after `vite build`), VITE_API_URL must be set to the actual backend URL.
 export const API_BASE =
-  import.meta.env.DEV ? '' : (import.meta.env.VITE_API_URL || '');
-
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.DEV
+    ? ''
+    : (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+        ? 'http://localhost:5000'
+        : ''));
 
 async function fetchJson(endpoint, options = {}) {
   const url = `${API_BASE}${endpoint}`;
@@ -17,21 +21,28 @@ async function fetchJson(endpoint, options = {}) {
     'Content-Type': 'application/json',
     ...options.headers,
   };
-  const response = await fetch(url, { ...options, headers });
-  const text = await response.text();
-  let data = {};
   try {
-    data = text ? JSON.parse(text) : {};
-  } catch {
-    if (!response.ok) {
-      throw new Error(`Server returned status ${response.status}: ${response.statusText || 'Not Found'}`);
+    const response = await fetch(url, { ...options, headers });
+    const text = await response.text();
+    let data = {};
+    try {
+      data = text ? JSON.parse(text) : {};
+    } catch {
+      if (!response.ok) {
+        throw new Error(`Backend service unreachable (${response.status}). Set VITE_API_URL in Vercel environment variables.`);
+      }
+      throw new Error(`Invalid JSON response received from ${endpoint}`);
     }
-    throw new Error(`Invalid JSON response received from ${endpoint}`);
+    if (!response.ok) {
+      throw new Error(data.error || `Request failed: ${response.status}`);
+    }
+    return data;
+  } catch (err) {
+    if (err.message && (err.message.includes('NOT_FOUND') || err.message.includes('404'))) {
+      throw new Error(`Backend API endpoint '${endpoint}' was not found. Please configure VITE_API_URL in Vercel.`);
+    }
+    throw err;
   }
-  if (!response.ok) {
-    throw new Error(data.error || `Request failed: ${response.status}`);
-  }
-  return data;
 }
 
 // ── Repository Management ──────────────────────────────
