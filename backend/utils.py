@@ -65,7 +65,7 @@ def validate_slug(slug: str) -> Tuple[bool, Optional[str]]:
     """Validate a repository slug."""
     if not slug or not slug.strip():
         return False, "Repository slug is required."
-    if not re.match(r"^[a-zA-Z0-9_\-]+$", slug.strip()):
+    if not re.match(r"^[a-zA-Z0-9_/.\-]+$", slug.strip()):
         return False, "Invalid repository slug format."
     return True, None
 
