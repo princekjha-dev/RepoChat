@@ -1,0 +1,148 @@
+{
+  "princekjha-dev_AiResuMind": {
+    "u2vb91uh": {
+      "message_id": "u2vb91uh",
+      "slug": "princekjha-dev_AiResuMind",
+      "repo_url": "https://github.com/princekjha-dev/AiResuMind.git",
+      "question": "Explain authentication",
+      "answer": "### Codebase Context for `princekjha-dev/AiResuMind`\n\nBased on semantic search over the indexed repository for **\"Explain authentication\"**, here are the relevant code sections retrieved from context:\n\n #### 1. `pages/auth.py`\n**Function_chunk**: `render_auth_page` (lines 11\u201351)\n\n```py\ndef render_auth_page():\n    \"\"\"Render Executive Dark Glassmorphic Sign In / Sign Up Page for AiResuMind Pro v4.0.\"\"\"\n    \n    # Global CSS for Auth Page\n    render_clean_html(\"\"\"\n        <style>\n        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap');\n\n        .auth-wrapper {\n            max-width: 520px;\n            margin: 42px auto 24px auto;\n            padding: 0 16px;\n        }\n\n        /* Streamlit widgets sit outside the HTML heading block.  Constrain each\n           generated section so the authentication flow remains one focused panel. */\n        [data-testid=\"stTabs\"], [data-testid=\"stForm\"],\n        div[data-testid=\"stElementContainer\"]:has(.auth-divider),\n        div[data-testid=\"stElementCon\n```\n\nCitation: [pages/auth.py:11-51]\n\n---\n\n #### 2. `config/database.py`\n**Function**: `verify_admin` (lines 263\u2013283)\n\n```py\ndef verify_admin(email, password):\n    \"\"\"Verify admin credentials\"\"\"\n    if not email or not password:\n        return False\n    \n    # Check default master admin account\n    if email.strip().lower() == \"pkjha2028@gmail.com\" and password.strip() == \"lol@123\":\n        return True\n        \n    conn = get_database_connection()\n    cursor = conn.cursor()\n    \n    try:\n        cursor.execute('SELECT * FROM admin WHERE LOWER(email) = ? AND password = ?', (email.strip().lower(), password.strip()))\n        result = cursor.fetchone()\n        return bool(result)\n    except Exception as e:\n        print(f\"Error verifying admin: {str(e)}\")\n        return False\n    finally:\n        conn.close()\n```\n\nCitation: [config/database.py:263-283]\n\n---\n\n #### 3. `.github/CODE_OF_CONDUCT.md`\n**Lines**: `lines_1-38` (lines 1\u201338)\n\n```md\n# Code of Conduct\n\n## Our Pledge\n\nWe as contributors and maintainers pledge to make participation in Prince Resume AI\na harassment-free experience for everyone, regardless of background, identity,\nor level of experience.\n\n## Our Standards\n\nPositive behaviour includes:\n\n- Using respectful and inclusive language\n- Welcoming different viewpoints and experience levels\n- Giving and accepting constructive feedback gracefully\n- Focusing on what is best for the project and community\n\nUnacceptable behaviour includes:\n\n- Harassment, personal attacks, or discriminatory language\n- Offensive comments related to personal attributes\n- Trolling or deliberately disruptive behaviour\n- Publishing others' private information without consent\n\n## Reporting\n\nReport violations by opening a private issue or contac\n```\n\nCitation: [.github/CODE_OF_CONDUCT.md:1-38]\n\n---\n\n #### 4. `README.md`\n**Lines**: `lines_294-308` (lines 294\u2013308)\n\n```md\n| [SECURITY.md](SECURITY.md) | Responsible disclosure and vulnerability reporting |\n\n---\n\n## License\n\nThis project is licensed under the [MIT License](LICENSE).\n\n---\n\n<div align=\"center\">\n\nBuilt with Python \u00b7 Streamlit \u00b7 OpenRouter \u00b7 Gemini \u00b7 Groq\n\n</div>\n```\n\nCitation: [README.md:294-308]\n\n---\n\n #### 5. `pages/auth.py`\n**Function_chunk**: `render_auth_page` (lines 143\u2013177)\n\n```py\n<div class=\"auth-wrapper\">\n            <div style=\"text-align: center; margin-bottom: 8px;\">\n                <div style=\"display: inline-flex; align-items: center; justify-content: center; width: 50px; height: 50px; background: linear-gradient(135deg, #ff6b4a 0%, #e7b85a 100%); border-radius: 14px; font-family: 'Space Grotesk', sans-serif; font-weight: 900; font-size: 22px; color: #FFFFFF; box-shadow: 0 0 25px rgba(255,107,74,.28); margin-bottom: 12px;\">\n                    <i class=\"fa-solid fa-circle-user\"></i>\n                </div>\n                <h1 class=\"auth-title\">Welcome back</h1>\n                <p class=\"auth-subtitle\">Continue building a stronger career story.</p>\n            </div>\n        </div>\n    \"\"\")\n\n    auth_tab1, auth_tab2 = st.tabs([\"Sign In\", \"Create Account\"])\n\n  \n```\n\nCitation: [pages/auth.py:143-177]\n\n---\n\n ",
+      "citations": [
+        {
+          "file": "pages/auth.py",
+          "start": 11,
+          "end": 51
+        },
+        {
+          "file": "config/database.py",
+          "start": 263,
+          "end": 283
+        },
+        {
+          "file": ".github/CODE_OF_CONDUCT.md",
+          "start": 1,
+          "end": 38
+        },
+        {
+          "file": "README.md",
+          "start": 294,
+          "end": 308
+        },
+        {
+          "file": "pages/auth.py",
+          "start": 143,
+          "end": 177
+        }
+      ],
+      "timestamp": "2026-08-08T09:34:55.469401+00:00"
+    }
+  },
+  "princekjha-dev/AiResuMind": {
+    "9horw2v9": {
+      "message_id": "9horw2v9",
+      "slug": "princekjha-dev/AiResuMind",
+      "repo_url": "https://github.com/princekjha-dev/AiResuMind.git",
+      "question": "Hello, what does this codebase do?",
+      "answer": "### Codebase Context for `princekjha-dev/AiResuMind`\n\nBased on semantic search over the indexed repository for **\"Hello, what does this codebase do?\"**, here are the relevant code sections retrieved from context:\n\n #### 1. `README.md`\n**Lines**: `lines_294-308` (lines 294\u2013308)\n\n```md\n| [SECURITY.md](SECURITY.md) | Responsible disclosure and vulnerability reporting |\n\n---\n\n## License\n\nThis project is licensed under the [MIT License](LICENSE).\n\n---\n\n<div align=\"center\">\n\nBuilt with Python \u00b7 Streamlit \u00b7 OpenRouter \u00b7 Gemini \u00b7 Groq\n\n</div>\n```\n\nCitation: [README.md:294-308]\n\n---\n\n #### 2. `utils/ai_resume_analyzer.py`\n**Method_chunk**: `AIResumeAnalyzer.generate_prompt_based_resume` (lines 2370\u20132400)\n\n```py\n\"experience\": [\n                    {\n                        \"company\": \"Apex Technology Labs\",\n                        \"position\": \"Senior Software Engineer\",\n                        \"start_date\": \"2022\",\n                        \"end_date\": \"Present\",\n                        \"description\": \"Lead engineer responsible for core microservices and AI application pipelines.\",\n                        \"responsibilities\": [\n                            \"Architected high-throughput REST APIs in Python and FastAPI, handling over 100k daily requests with sub-100ms latency.\",\n                            \"Integrated multi-provider AI models for automated document parsing and contextual text extraction.\",\n                            \"Optimized relational database schemas and cache layers, reducing serve\n```\n\nCitation: [utils/ai_resume_analyzer.py:2370-2400]\n\n---\n\n #### 3. `jobs/job_portals.py`\n**Method_chunk**: `JobPortal.search_jobs` (lines 100\u2013110)\n\n```py\n\u2022 Write clean, testable, and maintainable code adhering to industry standards.\n\u2022 Participate in design reviews, incident management, and automated deployment pipelines.\n\n#### Qualifications:\n\u2022 Strong hands-on experience with: {', '.join(skills)}.\n\u2022 Demonstrated problem-solving capabilities and experience with high-throughput systems.\n\u2022 Excellent communication skills and a team-first growth mindset.\n\"\"\"\n            })\n            \n        return results\n```\n\nCitation: [jobs/job_portals.py:100-110]\n\n---\n\n #### 4. `pages/resume_builder.py`\n**Function_chunk**: `render_resume_builder_page` (lines 49\u201389)\n\n```py\n'field': 'Computer Science & Engineering',\n                    'graduation_date': '2025',\n                    'gpa': '8.6/10.0',\n                    'location': 'New Delhi, India'\n                }\n            ],\n            'projects': [\n                {\n                    'name': 'AiResuMind - Candidate Intelligence & Legal AI Engine',\n                    'technologies': 'Python, PyTorch, scikit-learn, FastAPI, Streamlit, PostgreSQL',\n                    'link': 'github.com/princekjha-dev/AiResuMind',\n                    'responsibilities': [\n                        'Architected multi-provider AI LLM fallback pipeline (Gemini, Groq, Kimi-K3) with 96%+ ATS keyword match accuracy.',\n                        'Engineered automated document parsing and NLP classification engine for structure\n```\n\nCitation: [pages/resume_builder.py:49-89]\n\n---\n\n #### 5. `utils/ai_resume_analyzer.py`\n**Method_chunk**: `AIResumeAnalyzer.generate_prompt_based_resume` (lines 2291\u20132334)\n\n```py\n}},\n  \"summary\": \"Compelling 3-4 sentence professional summary loaded with JD target keywords, achievements, and technical strengths.\",\n  \"experience\": [\n    {{\n      \"company\": \"Tech Solutions Corp\",\n      \"position\": \"Senior Software Engineer / AI Specialist\",\n      \"start_date\": \"2022\",\n      \"end_date\": \"Present\",\n      \"description\": \"Led end-to-end development of cloud applications and high-throughput microservices.\",\n      \"responsibilities\": [\n        \"Architected scalable microservices using Python, FastAPI, and PostgreSQL, reducing latency by 45%.\",\n        \"Engineered automated AI pipelines leveraging LLMs and cloud APIs, accelerating client workflows by 60%.\",\n        \"Mentored a team of 5 engineers in modern DevOps practices, maintaining 99.9% uptime.\"\n      ]\n    }},\n    {{\n \n```\n\nCitation: [utils/ai_resume_analyzer.py:2291-2334]\n\n---\n\n ",
+      "citations": [
+        {
+          "file": "README.md",
+          "start": 294,
+          "end": 308
+        },
+        {
+          "file": "utils/ai_resume_analyzer.py",
+          "start": 2370,
+          "end": 2400
+        },
+        {
+          "file": "jobs/job_portals.py",
+          "start": 100,
+          "end": 110
+        },
+        {
+          "file": "pages/resume_builder.py",
+          "start": 49,
+          "end": 89
+        },
+        {
+          "file": "utils/ai_resume_analyzer.py",
+          "start": 2291,
+          "end": 2334
+        }
+      ],
+      "timestamp": "2026-08-08T09:37:47.482110+00:00"
+    }
+  },
+  "princekjha-dev_RepoChat": {
+    "3qx0rapg": {
+      "message_id": "3qx0rapg",
+      "slug": "princekjha-dev_RepoChat",
+      "repo_url": "https://github.com/princekjha-dev/RepoChat",
+      "question": "hi",
+      "answer": "### Codebase Context for `princekjha-dev/RepoChat`\n\nBased on semantic search over the indexed repository for **\"hi\"**, here are the relevant code sections retrieved from context:\n\n #### 1. `frontend/src/services/api.js`\n**Lines**: `lines_17-17` (lines 17\u201317)\n\n```js\n\n```\n\nCitation: [frontend/src/services/api.js:17-17]\n\n---\n\n #### 2. `frontend/src/services/api.js`\n**Lines**: `lines_47-47` (lines 47\u201347)\n\n```js\n\n```\n\nCitation: [frontend/src/services/api.js:47-47]\n\n---\n\n #### 3. `frontend/src/pages/SharePage.jsx`\n**Lines**: `lines_113-113` (lines 113\u2013113)\n\n```jsx\n\n```\n\nCitation: [frontend/src/pages/SharePage.jsx:113-113]\n\n---\n\n #### 4. `frontend/src/components/Toast.jsx`\n**Lines**: `lines_86-86` (lines 86\u201386)\n\n```jsx\n\n```\n\nCitation: [frontend/src/components/Toast.jsx:86-86]\n\n---\n\n #### 5. `frontend/src/components/MessageBubble.jsx`\n**Lines**: `lines_150-150` (lines 150\u2013150)\n\n```jsx\n\n```\n\nCitation: [frontend/src/components/MessageBubble.jsx:150-150]\n\n---\n\n ",
+      "citations": [
+        {
+          "file": "frontend/src/services/api.js",
+          "start": 17,
+          "end": 17
+        },
+        {
+          "file": "frontend/src/services/api.js",
+          "start": 47,
+          "end": 47
+        },
+        {
+          "file": "frontend/src/pages/SharePage.jsx",
+          "start": 113,
+          "end": 113
+        },
+        {
+          "file": "frontend/src/components/Toast.jsx",
+          "start": 86,
+          "end": 86
+        },
+        {
+          "file": "frontend/src/components/MessageBubble.jsx",
+          "start": 150,
+          "end": 150
+        }
+      ],
+      "timestamp": "2026-08-08T09:40:37.723978+00:00"
+    },
+    "x26tkyuu": {
+      "message_id": "x26tkyuu",
+      "slug": "princekjha-dev_RepoChat",
+      "repo_url": "https://github.com/princekjha-dev/RepoChat",
+      "question": "hi",
+      "answer": "### Codebase Context for `princekjha-dev/RepoChat`\n\nBased on semantic search over the indexed repository for **\"hi\"**, here are the relevant code sections retrieved from context:\n\n #### 1. `frontend/src/store/useStore.js`\n**Lines**: `lines_6-6` (lines 6\u20136)\n\n```js\n\n```\n\nCitation: [frontend/src/store/useStore.js:6-6]\n\n---\n\n #### 2. `frontend/src/components/Chat.jsx`\n**Lines**: `lines_25-25` (lines 25\u201325)\n\n```jsx\n\n```\n\nCitation: [frontend/src/components/Chat.jsx:25-25]\n\n---\n\n #### 3. `frontend/src/components/Chat.jsx`\n**Lines**: `lines_40-40` (lines 40\u201340)\n\n```jsx\n\n```\n\nCitation: [frontend/src/components/Chat.jsx:40-40]\n\n---\n\n #### 4. `frontend/src/components/Chat.jsx`\n**Lines**: `lines_53-53` (lines 53\u201353)\n\n```jsx\n\n```\n\nCitation: [frontend/src/components/Chat.jsx:53-53]\n\n---\n\n #### 5. `frontend/src/components/chat/ChatInput.jsx`\n**Lines**: `lines_38-38` (lines 38\u201338)\n\n```jsx\n\n```\n\nCitation: [frontend/src/components/chat/ChatInput.jsx:38-38]\n\n---\n\n ",
+      "citations": [
+        {
+          "file": "frontend/src/store/useStore.js",
+          "start": 6,
+          "end": 6
+        },
+        {
+          "file": "frontend/src/components/Chat.jsx",
+          "start": 25,
+          "end": 25
+        },
+        {
+          "file": "frontend/src/components/Chat.jsx",
+          "start": 40,
+          "end": 40
+        },
+        {
+          "file": "frontend/src/components/Chat.jsx",
+          "start": 53,
+          "end": 53
+        },
+        {
+          "file": "frontend/src/components/chat/ChatInput.jsx",
+          "start": 38,
+          "end": 38
+        }
+      ],
+      "timestamp": "2026-08-08T09:42:01.233727+00:00"
+    }
+  }
+}

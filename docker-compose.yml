@@ -1,0 +1,71 @@
+# ════════════════════════════════════════════════════════
+# RepoChat AI — Docker Compose
+# Full production stack: backend (Flask) + frontend (nginx)
+# ════════════════════════════════════════════════════════
+
+version: '3.9'
+
+services:
+
+  # ── Backend: Flask + ChromaDB ───────────────────────
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: repochat-backend
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      # ── Required: at least one LLM key ──
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
+      - GROQ_API_KEY=${GROQ_API_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      # ── Optional ──
+      - GITHUB_TOKEN=${GITHUB_TOKEN:-}
+      - LLM_MODEL=${LLM_MODEL:-meta-llama/llama-3.3-70b-instruct}
+      - HOST=0.0.0.0
+      - PORT=5000
+      - DEBUG=false
+    volumes:
+      # Persist ChromaDB embeddings and repo metadata between restarts
+      - repochat-chroma:/data/chroma_db
+      - repochat-cache:/app/cache
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    networks:
+      - repochat-net
+
+  # ── Frontend: Vite build served by nginx ────────────
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      args:
+        # Points browser requests to backend
+        - VITE_API_URL=${VITE_API_URL:-http://localhost:5000}
+    container_name: repochat-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - repochat-net
+
+# ── Named Volumes ────────────────────────────────────
+volumes:
+  repochat-chroma:
+    driver: local
+  repochat-cache:
+    driver: local
+
+# ── Network ──────────────────────────────────────────
+networks:
+  repochat-net:
+    driver: bridge
