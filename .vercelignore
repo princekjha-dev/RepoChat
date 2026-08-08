@@ -1,0 +1,7 @@
+# Ignore Python backend & heavy ML packages from Vercel frontend build
+backend/
+venv/
+chroma_db/
+requirements.txt
+.env
+.env.local
