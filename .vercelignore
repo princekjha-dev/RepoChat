@@ -1,7 +1,6 @@
-# Ignore Python backend & heavy ML packages from Vercel frontend build
-backend/
+# Keep the backend and its dependencies available to the /api serverless function.
+# Local runtime data and virtual environments must not be deployed.
 venv/
 chroma_db/
-requirements.txt
 .env
 .env.local
