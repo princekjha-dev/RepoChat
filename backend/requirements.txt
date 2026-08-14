@@ -1,0 +1,11 @@
+Flask
+Flask-Cors
+GitPython
+sentence-transformers
+chromadb
+python-dotenv
+requests
+torch
+numpy
+anthropic
+flask-limiter

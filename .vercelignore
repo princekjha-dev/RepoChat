@@ -1,7 +1,6 @@
-# The Vercel deployment is frontend-only. The Flask/Chroma backend runs in a
-# container host because its ML dependencies exceed Vercel's function limit.
+# The Vercel function uses the lightweight root requirements.txt. The legacy
+# local backend has its own dependency file and must not be bundled.
 backend/
-requirements.txt
 venv/
 chroma_db/
 .env
