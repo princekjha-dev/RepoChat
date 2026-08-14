@@ -15,8 +15,21 @@ export const API_BASE =
         ? 'http://localhost:5000'
         : ''));
 
+const BACKEND_CONFIGURATION_ERROR =
+  'Backend is not configured. Set VITE_API_URL in the Vercel project settings to the public URL of the RepoChat backend, then redeploy.';
+
+function apiUrl(endpoint) {
+  // The Vite proxy supplies /api during development. In a production static
+  // deployment, an explicit backend URL is required instead of silently
+  // requesting the Vercel frontend route.
+  if (!API_BASE && import.meta.env.PROD) {
+    throw new Error(BACKEND_CONFIGURATION_ERROR);
+  }
+  return `${API_BASE}${endpoint}`;
+}
+
 async function fetchJson(endpoint, options = {}) {
-  const url = `${API_BASE}${endpoint}`;
+  const url = apiUrl(endpoint);
   const headers = {
     'Content-Type': 'application/json',
     ...options.headers,
@@ -153,7 +166,7 @@ async function readSSEStream(response, { onToken, onSources, onStatus, onCitatio
 export async function streamChat(slug, message, history, callbacks, signal) {
   const { onSources, onToken, onCitations, onMessageId, onError, onComplete } = callbacks;
   try {
-    const response = await fetch(`${API_BASE}/api/chat`, {
+    const response = await fetch(apiUrl('/api/chat'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -188,7 +201,7 @@ export const getShareExchange = (slug, messageId) =>
 export async function streamExplain(code, options = {}, callbacks, signal) {
   const { onToken, onError, onComplete } = callbacks;
   try {
-    const response = await fetch(`${API_BASE}/api/explain`, {
+    const response = await fetch(apiUrl('/api/explain'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -213,7 +226,7 @@ export async function streamExplain(code, options = {}, callbacks, signal) {
 export async function streamRepoSummary(slug, callbacks, signal) {
   const { onToken, onError, onComplete } = callbacks;
   try {
-    const response = await fetch(`${API_BASE}/api/repos/${slug}/summary`, { signal });
+    const response = await fetch(apiUrl(`/api/repos/${slug}/summary`), { signal });
     if (!response.ok) throw new Error(`Request failed: ${response.status}`);
     await readSSEStream(response, { onToken, onError, onComplete, signal });
   } catch (err) {
@@ -229,7 +242,7 @@ export async function streamRepoSummary(slug, callbacks, signal) {
 export async function streamCompare(slug1, slug2, callbacks, signal) {
   const { onToken, onError, onComplete } = callbacks;
   try {
-    const response = await fetch(`${API_BASE}/api/compare`, {
+    const response = await fetch(apiUrl('/api/compare'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ repo1: slug1, repo2: slug2 }),

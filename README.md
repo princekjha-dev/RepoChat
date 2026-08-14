@@ -92,6 +92,18 @@ npm run dev
 # Frontend runs on http://localhost:5174
 ```
 
+### Deploying the frontend to Vercel
+
+Vercel hosts the Vite frontend only. The Flask backend includes PyTorch,
+SentenceTransformers, and persistent ChromaDB storage, so it must run on a
+container host with a persistent volume (for example, using
+`Dockerfile.backend`). After the backend is available publicly:
+
+1. In Vercel, add `VITE_API_URL` with the backend's HTTPS URL (without a
+   trailing `/`).
+2. Redeploy the frontend so Vite embeds that URL in the build.
+3. Confirm `<backend-url>/api/health` returns JSON before opening RepoChat.
+
 ---
 
 ## 🔒 Security & Hardening Architecture

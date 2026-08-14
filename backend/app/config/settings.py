@@ -15,7 +15,7 @@ load_dotenv(_ROOT / ".env")
 # ── Paths ──────────────────────────────────────────────────────────────────
 BASE_DIR: Path = Path(__file__).resolve().parents[2]   # backend/
 PROJECT_ROOT: Path = BASE_DIR.parent                   # repo root
-CHROMA_PATH: Path = PROJECT_ROOT / "chroma_db"
+CHROMA_PATH: Path = Path(os.getenv("CHROMA_PATH", str(PROJECT_ROOT / "chroma_db")))
 CACHE_DIR: Path = BASE_DIR / "cache"
 REPO_CACHE_FILE: Path = CACHE_DIR / "repo_data.json"
 SHARE_CACHE_FILE: Path = CACHE_DIR / "share_data.json"
