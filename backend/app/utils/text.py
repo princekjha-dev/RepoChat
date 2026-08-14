@@ -18,6 +18,26 @@ def count_tokens(text: str) -> int:
     return max(int(len(text.split()) * 1.3), int(len(text) / 4), 1)
 
 
+def normalize_repo_slug(slug_or_url: str) -> str:
+    """Normalize any GitHub URL, owner/repo string, or slug into canonical 'owner_repo' format."""
+    if not slug_or_url or not isinstance(slug_or_url, str):
+        return ""
+    text = slug_or_url.strip()
+    if "github.com" in text or text.startswith("git@") or text.startswith("ssh://"):
+        match = re.search(r'(?:https?://|git@|ssh://git@|git://)?(?:www\.)?github\.com[:/]([^/]+)/([^/.]+?)(?:\.git)?(?:/|$|\?)', text)
+        if match:
+            owner, repo = match.group(1), match.group(2)
+            slug = f"{owner}_{repo}"
+            return re.sub(r'[^a-zA-Z0-9_\-]', '', slug)
+    if "/" in text:
+        parts = [p for p in text.split("/") if p]
+        if len(parts) >= 2:
+            owner, repo = parts[0], parts[1].replace(".git", "")
+            slug = f"{owner}_{repo}"
+            return re.sub(r'[^a-zA-Z0-9_\-]', '', slug)
+    return re.sub(r'[^a-zA-Z0-9_\-]', '', text)
+
+
 # ── Collection name sanitisation ──────────────────────────────────────────
 
 def sanitize_collection_name(name: str) -> str:

@@ -7,11 +7,13 @@ Rejects non-matching inputs with explicit error details.
 import re
 from typing import Dict, Any, Tuple, List, Optional
 
+from utils import normalize_repo_slug
+
 # Regex Patterns
 GITHUB_URL_REGEX = re.compile(
-    r'^(https://github\.com/[a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+/?|git@github\.com:[a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+(\.git)?)$'
+    r'^(https?://(www\.)?github\.com/[a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+.*|git@github\.com:[a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+.*|[a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+)$'
 )
-SLUG_REGEX = re.compile(r'^[a-zA-Z0-9_/.-]{1,128}$')
+SLUG_REGEX = re.compile(r'^[a-zA-Z0-9_:./-]{1,255}$')
 EMAIL_REGEX = re.compile(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$')
 TOKEN_REGEX = re.compile(r'^[a-zA-Z0-9_.-]{1,255}$')
 
@@ -26,8 +28,8 @@ def validate_index_input(data: Dict[str, Any]) -> Tuple[bool, Optional[Dict[str,
         return False, {"error": "Validation error", "details": {"repo_url": "Repository URL is required and must be a string."}}
 
     repo_url = repo_url.strip()
-    if len(repo_url) > 255:
-        return False, {"error": "Validation error", "details": {"repo_url": "Repository URL exceeds maximum length of 255 characters."}}
+    if len(repo_url) > 500:
+        return False, {"error": "Validation error", "details": {"repo_url": "Repository URL exceeds maximum length of 500 characters."}}
 
     if not GITHUB_URL_REGEX.match(repo_url):
         return False, {
@@ -65,7 +67,8 @@ def validate_chat_input(data: Dict[str, Any]) -> Tuple[bool, Optional[Dict[str, 
         return False, {"error": "Validation error", "details": {"repo_name": "Repository name is required and must be a string."}}
 
     repo_name = repo_name.strip()
-    if not SLUG_REGEX.match(repo_name):
+    norm_slug = normalize_repo_slug(repo_name)
+    if not norm_slug or not re.match(r"^[a-zA-Z0-9_\-]+$", norm_slug):
         return False, {"error": "Validation error", "details": {"repo_name": "Invalid repository slug format."}}
 
     query = data.get("query") or data.get("question") or data.get("message")

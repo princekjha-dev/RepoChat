@@ -34,7 +34,19 @@ def list_repos() -> List[Dict[str, Any]]:
 
 
 def get_repo(slug: str) -> Optional[Dict[str, Any]]:
-    return _load()["repos"].get(slug)
+    if not slug:
+        return None
+    from app.utils.text import normalize_repo_slug
+    norm = normalize_repo_slug(slug)
+    repos = _load()["repos"]
+    if norm in repos:
+        return repos[norm]
+    if slug in repos:
+        return repos[slug]
+    for k, v in repos.items():
+        if k.lower() == norm.lower() or k.replace("/", "_").lower() == norm.lower():
+            return v
+    return None
 
 
 def add_repo(

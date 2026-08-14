@@ -132,9 +132,11 @@ def retrieve_top_chunks(query: str, repo_name: str, top_k: int = 5) -> List[Dict
         return []
 
     try:
+        from utils import normalize_repo_slug
+        norm_name = normalize_repo_slug(repo_name) or repo_name
         model = get_embedding_model()
         chroma = get_chroma_client()
-        collection_name = sanitize_collection_name(repo_name)
+        collection_name = sanitize_collection_name(norm_name)
 
         try:
             collection = chroma.get_collection(collection_name)
@@ -146,16 +148,11 @@ def retrieve_top_chunks(query: str, repo_name: str, top_k: int = 5) -> List[Dict
                 found_coll = None
                 for c in colls:
                     c_name = c.name if hasattr(c, "name") else str(c)
-                    if c_name.lower() == collection_name.lower():
+                    if c_name.lower() == collection_name.lower() or c_name.lower() == norm_name.lower():
                         found_coll = chroma.get_collection(c_name)
                         break
                 if found_coll:
                     collection = found_coll
-                    count = collection.count()
-                elif colls:
-                    first = colls[0]
-                    first_name = first.name if hasattr(first, "name") else str(first)
-                    collection = chroma.get_collection(first_name)
                     count = collection.count()
                 else:
                     return []

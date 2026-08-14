@@ -525,6 +525,12 @@ def chat():
     repo_name = (payload.get("repo_name") or payload.get("slug") or payload.get("activeRepo") or "").strip()
     conversation_history = payload.get("history") or payload.get("conversation_history") or []
 
+    from utils import normalize_repo_slug
+    if repo_name:
+        norm_name = normalize_repo_slug(repo_name)
+        if norm_name:
+            repo_name = norm_name
+
     if not repo_name:
         available = list_repos()
         if available:

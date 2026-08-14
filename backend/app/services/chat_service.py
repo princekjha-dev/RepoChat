@@ -44,9 +44,11 @@ def retrieve_top_chunks(query: str, repo_name: str, top_k: int = 5) -> List[Dict
     if not query.strip():
         return []
     try:
+        from app.utils.text import normalize_repo_slug
+        norm_name = normalize_repo_slug(repo_name) or repo_name
         model = get_embedding_model()
         chroma = get_chroma_client()
-        col_name = sanitize_collection_name(repo_name)
+        col_name = sanitize_collection_name(norm_name)
         try:
             collection = chroma.get_collection(col_name)
             if collection.count() == 0:

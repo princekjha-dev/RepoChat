@@ -15,8 +15,7 @@ export default function RepoInput({ onIngest, ingesting }) {
     onIngest(url.trim(), token.trim() || null);
   };
 
-  const isValid = /^https:\/\/github\.com\/[\w.\-]+\/[\w.\-]+(\/)?$/.test(url.trim()) ||
-    /^git@github\.com:[\w.\-]+\/[\w.\-]+(\.git)?$/.test(url.trim());
+  const isValid = /^(https?:\/\/(www\.)?github\.com\/[\w.\-]+\/[\w.\-]+.*|git@github\.com:[\w.\-]+\/[\w.\-]+(\.git)?|[\w.\-]+\/[\w.\-]+)$/.test(url.trim());
 
   return (
     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '100%' }}>

@@ -117,9 +117,13 @@ def get_repo(slug: str) -> Optional[Dict[str, Any]]:
     repos = cache.get("repos", {})
     if slug in repos:
         return repos[slug]
+    from utils import normalize_repo_slug
+    norm = normalize_repo_slug(slug)
+    if norm and norm in repos:
+        return repos[norm]
     normalized_input = slug.replace("/", "_").lower()
     for k, v in repos.items():
-        if k.replace("/", "_").lower() == normalized_input:
+        if k.replace("/", "_").lower() == normalized_input or k.lower() == norm.lower():
             return v
     return None
 

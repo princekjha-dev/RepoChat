@@ -20,6 +20,12 @@ def chat():
     repo_name = (payload.get("repo_name") or payload.get("slug", "")).strip()
     history = payload.get("conversation_history") or payload.get("history") or []
 
+    from app.utils.text import normalize_repo_slug
+    if repo_name:
+        norm_name = normalize_repo_slug(repo_name)
+        if norm_name:
+            repo_name = norm_name
+
     if not query:
         return jsonify({"error": "Query message cannot be empty."}), 400
     if not repo_name:

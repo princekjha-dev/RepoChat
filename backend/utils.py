@@ -42,18 +42,36 @@ def log_request(method: str, path: str, status: int, duration_ms: float) -> None
 
 # ── Input Validators ──────────────────────────────────
 
+def normalize_repo_slug(slug_or_url: str) -> str:
+    """Normalize any GitHub URL, owner/repo string, or slug into canonical 'owner_repo' format."""
+    if not slug_or_url or not isinstance(slug_or_url, str):
+        return ""
+    text = slug_or_url.strip()
+    if "github.com" in text or text.startswith("git@") or text.startswith("ssh://"):
+        match = re.search(r'(?:https?://|git@|ssh://git@|git://)?(?:www\.)?github\.com[:/]([^/]+)/([^/.]+?)(?:\.git)?(?:/|$|\?)', text)
+        if match:
+            owner, repo = match.group(1), match.group(2)
+            slug = f"{owner}_{repo}"
+            return re.sub(r'[^a-zA-Z0-9_\-]', '', slug)
+    if "/" in text:
+        parts = [p for p in text.split("/") if p]
+        if len(parts) >= 2:
+            owner, repo = parts[0], parts[1].replace(".git", "")
+            slug = f"{owner}_{repo}"
+            return re.sub(r'[^a-zA-Z0-9_\-]', '', slug)
+    return re.sub(r'[^a-zA-Z0-9_\-]', '', text)
+
+
 def validate_github_url(url: str) -> Tuple[bool, Optional[str]]:
-    """Validate a GitHub repository URL (supporting both HTTPS and SSH)."""
+    """Validate a GitHub repository URL (supporting HTTPS, HTTP, SSH, subpaths, and owner/repo)."""
     if not url or not url.strip():
         return False, "Repository URL is required."
     
     url = url.strip()
     
-    # Matches HTTPS and SSH formats
-    # HTTPS: https://github.com/owner/repo(.git)?
-    # SSH: git@github.com:owner/repo.git or ssh://git@github.com/owner/repo.git
-    pattern = r"^(?:https://|git@|ssh://git@|git://)?github\.com[:/][\w.\-]+/[\w.\-]+(?:\.git)?/?$"
-    if not re.match(pattern, url):
+    # Matches HTTPS, HTTP, SSH, git:// formats, subpaths, or owner/repo shorthand
+    pattern = r"^(?:https?://|git@|ssh://git@|git://)?(?:www\.)?github\.com[:/][\w.\-]+/[\w.\-]+.*$"
+    if not re.match(pattern, url) and not re.match(r"^[\w.\-]+/[\w.\-]+$", url):
         return False, (
             "Invalid GitHub URL. Expected format: "
             "https://github.com/owner/repository"
@@ -65,7 +83,8 @@ def validate_slug(slug: str) -> Tuple[bool, Optional[str]]:
     """Validate a repository slug."""
     if not slug or not slug.strip():
         return False, "Repository slug is required."
-    if not re.match(r"^[a-zA-Z0-9_/.\-]+$", slug.strip()):
+    norm = normalize_repo_slug(slug)
+    if not norm or not re.match(r"^[a-zA-Z0-9_\-]+$", norm):
         return False, "Invalid repository slug format."
     return True, None
 
@@ -88,20 +107,29 @@ def sanitize_input(text: str) -> str:
 
 def parse_github_url(url: str, token: Optional[str] = None) -> Tuple[str, str]:
     """
-    Parses a GitHub URL (HTTPS or SSH) and returns (clone_url, repo_slug).
+    Parses a GitHub URL (HTTPS, HTTP, or SSH) or owner/repo and returns (clone_url, repo_slug).
     Also supports injecting a token for private repositories.
     """
     url = url.strip()
     
-    # Try to extract owner and repo
-    match = re.search(r'(?:https://|git@|ssh://git@|git://)?github\.com[:/]([^/]+)/([^/.]+?)(?:\.git)?(?:/|$)', url)
+    match = re.search(r'(?:https?://|git@|ssh://git@|git://)?(?:www\.)?github\.com[:/]([^/]+)/([^/.]+?)(?:\.git)?(?:/|$|\?)', url)
     if not match:
-        raise ValueError("Invalid GitHub repository URL. Must be a GitHub HTTPS or SSH URL.")
+        if "/" in url and not url.startswith("http"):
+            parts = [p for p in url.split("/") if p]
+            if len(parts) >= 2:
+                owner, repo = parts[0], parts[1].replace(".git", "")
+                slug = f"{owner}_{repo}"
+                slug = re.sub(r'[^a-zA-Z0-9_\-]', '', slug)
+                if token and token.strip():
+                    clone_url = f"https://x-access-token:{token.strip()}@github.com/{owner}/{repo}.git"
+                else:
+                    clone_url = f"https://github.com/{owner}/{repo}.git"
+                return clone_url, slug
+        raise ValueError("Invalid GitHub repository URL. Must be a valid GitHub repository URL.")
         
     owner = match.group(1)
     repo = match.group(2)
     
-    # Sanitize owner and repo to build a slug
     slug = f"{owner}_{repo}"
     slug = re.sub(r'[^a-zA-Z0-9_\-]', '', slug)
     
